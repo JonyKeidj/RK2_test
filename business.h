@@ -1,190 +1,116 @@
 #include <iostream>
-#include <stdexcept>
+#include <memory>
 #include <string>
 
-class EstateOwner;
-class GroceryStore;
-class Restaurant;
-
-class BusinessMediator
+// Структура Color для представления цвета
+struct Color
 {
-public:
-    BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant);
+    Color(std::uint8_t R, std::uint8_t G, std::uint8_t B)
+        : R(R), G(G), B(B)
+    {}
 
-    void EstateRentPriceChanged(std::int32_t oldPrice, std::int32_t newPrice);
-    void GroceryStockChanged(std::int32_t currentStock);
-    void GroceryPriceChanged(std::int32_t oldPrice, std::int32_t newPrice);
-    void FoodIsCooked();
-
-private:
-    EstateOwner& estateOwner_;
-    GroceryStore& groceryStore_;
-    Restaurant& restaurant_;
+    std::uint8_t R, G, B;
 };
 
-class EstateOwner
+// Абстрактный класс Theme
+class Theme
 {
 public:
-    std::int32_t SetEstateRentPrice(std::int32_t price)
-    {
-        auto oldPrice = estateRentPrice_;
-        estateRentPrice_ = price;
-        if (mediator_) mediator_->EstateRentPriceChanged(oldPrice, price);
-        return oldPrice;
-    }
-    
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
-    {
-        BusinessMediator* old = mediator_;
-        mediator_ = mediator;
-        return old;
-    }
+    virtual ~Theme() = default;
 
-private:
-    BusinessMediator* mediator_{ nullptr };
-    std::int32_t estateRentPrice_{ 10000 };
+    virtual std::string Name() const = 0;
+    virtual Color WallColor() const = 0;
+    virtual Color FloorColor() const = 0;
+    virtual Color CeilingColor() const = 0;
 };
 
-class GroceryStore
+// Класс WhiteTheme, наследующий Theme
+class WhiteTheme : public Theme
 {
 public:
-    std::int32_t Supply(std::uint16_t count)
+    std::string Name() const override { return "White Theme"; }
+    Color WallColor() const override { return { 255, 255, 255 }; }
+    Color FloorColor() const override { return { 255, 255, 255 }; }
+    Color CeilingColor() const override { return { 255, 255, 255 }; }
+};
+
+// Класс DarkTheme, наследующий Theme
+class DarkTheme : public Theme
+{
+public:
+    std::string Name() const override { return "Dark Theme"; }
+    Color WallColor() const override { return { 0, 0, 0 }; }
+    Color FloorColor() const override { return { 0, 0, 0 }; }
+    Color CeilingColor() const override { return { 0, 0, 0 }; }
+};
+
+// Класс CustomTheme, наследующий Theme
+class CustomTheme : public Theme
+{
+public:
+    CustomTheme(std::string name, Color wallColor, Color floorColor, Color ceilingColor)
+        : name_(std::move(name)), wallColor_(wallColor), floorColor_(floorColor), ceilingColor_(ceilingColor)
+    {}
+
+    std::string Name() const override { return name_; }
+    Color WallColor() const override { return wallColor_; }
+    Color FloorColor() const override { return floorColor_; }
+    Color CeilingColor() const override { return ceilingColor_; }
+
+private:
+    std::string name_;
+    Color wallColor_, floorColor_, ceilingColor_;
+};
+
+// Абстрактный класс House
+class House
+{
+public:
+    explicit House(std::shared_ptr<Theme> theme)
+        : theme_(std::move(theme))
+    {}
+    virtual ~House() = default;
+
+    virtual std::string Name() const = 0;
+
+    void ChangeTheme(std::shared_ptr<Theme> const& theme) 
     {
-        stock_ += count;
-        if (mediator_) mediator_->GroceryStockChanged(stock_);
-        return stock_;
+        std::cout << Name() << " changes theme to '" << theme->Name() << "'." << std::endl;
+        theme_ = theme; 
     }
 
-    std::int32_t Sell()
+    void ShowDescription() const
     {
-        if (stock_ <= 0)
-        {
-            throw std::logic_error("Not in stock.");
-        }
-
-        --stock_;
-        if (mediator_) mediator_->GroceryStockChanged(stock_);
-        return price_;
-    }
-
-    std::int32_t GetPrice() const
-    {
-        return price_;
-    }
-
-    std::int32_t AlterPrice(std::int32_t priceChange)
-    std::int32_t CookFood()
-    {
-        if (isOpened_)
-        {
-            return price_;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    bool IsOpened() const
-    {
-        return isOpened_;
-    }
-
-    void SetIsOpened(bool isOpened)
-    {
-        isOpened_ = isOpened;
-    }
-
-    std::int32_t GetPrice() const
-    {
-        return price_;
-    }
-
-    std::int32_t AlterPrice(std::int32_t priceChange)
-    {
-        price_ += priceChange;
-        return price_;
-    }
-
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
-    {
-        BusinessMediator* old = mediator_;
-        mediator_ = mediator;
-        return old;
+        std::cout << Name() << " with theme('" << theme_->Name() << "')." << std::endl;
     }
 
 private:
-    GroceryStore& groceryStore_;
-    BusinessMediator* mediator_{ nullptr };
-    bool isOpened_{ true };
-    std::int32_t price_{ 500 };
+    std::shared_ptr<Theme> theme_;
 };
 
-BusinessMediator::BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant)
-    : estateOwner_(estateOwner), groceryStore_(groceryStore), restaurant_(restaurant)
+// Класс OneRoom, наследующий House
+class OneRoom : public House
 {
-    estateOwner_.SetBusinessMediator(this);
-    groceryStore_.SetBusinessMediator(this);
-    restaurant_.SetBusinessMediator(this);
-}
+public:
+    using House::House;
 
-void BusinessMediator::EstateRentPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
-{
-    groceryStore_.AlterPrice((newPrice - oldPrice) / 10000);
-    restaurant_.AlterPrice((newPrice - oldPrice) / 1000);
-}
+    std::string Name() const override { return "One Room"; }
+};
 
-void BusinessMediator::GroceryStockChanged(std::int32_t currentStock)
+// Класс Apartment, наследующий House
+class Apartment : public House
 {
-    if (currentStock > 0)
-    {
-        restaurant_.SetIsOpened(true);
-    }
-    else
-    {
-        restaurant_.SetIsOpened(false);
-    }
-}
+public:
+    using House::House;
 
-void BusinessMediator::GroceryPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
-{
-    restaurant_.AlterPrice(newPrice - oldPrice);
-}
+    std::string Name() const override { return "Apartment"; }
+};
 
-void BusinessMediator::FoodIsCooked()
+// Класс Castle, наследующий House
+class Castle : public House
 {
-    groceryStore_.Sell();
-}
+public:
+    using House::House;
 
-void BuyFood(Restaurant& restaurant)
-{
-    auto price = restaurant.CookFood();
-    if (price >= 0)
-    {
-        std::cout << "[BuyFood] The price of food : " << price << std::endl;
-    }
-    else
-    {
-        std::cout << "[BuyFood] Restaurant was closed because groceries are lacking." << std::endl;
-    }
-}
-
-void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
-{
-    auto newCount = groceryStore.Supply(count);
-    auto oldCount = newCount - count;
-    std::cout << "Grocery Stock Changes : " << oldCount << " -> " << newCount << std::endl;
-}
-
-void ChangeGroceryPrice(GroceryStore& groceryStore, std::int32_t priceChange)
-{
-    auto newPrice = groceryStore.AlterPrice(priceChange);
-    auto oldPrice = newPrice - priceChange;
-    std::cout << "Grocery Price Changes : " << oldPrice << " -> " << newPrice << std::endl;
-}
-
-void ChangeEstateRentPrice(EstateOwner& estateOwner, std::int32_t newPrice)
-{
-    auto oldPrice = estateOwner.SetEstateRentPrice(newPrice);
-    std::cout << "EstateRentPrice Changes : " << oldPrice << " -> " << newPrice << std::endl;
-}
+    std::string Name() const override { return "Castle"; }
+};
