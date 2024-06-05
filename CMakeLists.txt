@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(House_and_Theme)
+project(Business)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Добавляем исполняемый файл для примера
-add_executable(example house_and_theme.cpp)
+add_executable(example business.cpp)
 
 # GoogleTest
 include(FetchContent)
