@@ -63,40 +63,7 @@ public:
         }
 
         --stock_;
-        if (mediator_) mediator_->GroceryStockChanged(stock_);
-        return price_;
-    }
-
-    std::int32_t GetPrice() const
-    {
-        return price_;
-    }
-
-    std::int32_t AlterPrice(std::int32_t priceChange)
-    std::int32_t CookFood()
-    {
-        if (isOpened_)
-        {
-            return price_;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    bool IsOpened() const
-    {
-        return isOpened_;
-    }
-
-    void SetIsOpened(bool isOpened)
-    {
-        isOpened_ = isOpened;
-    }
-
-    std::int32_t GetPrice() const
-    {
+        if (mediator_) mediator_->FoodIsCooked();
         return price_;
     }
 
@@ -118,6 +85,43 @@ private:
     BusinessMediator* mediator_{ nullptr };
     bool isOpened_{ true };
     std::int32_t price_{ 500 };
+    std::int32_t stock_{ 0 };
+
+    std::int32_t CookFood()
+    {
+        if (isOpened_)
+        {
+            return price_;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+};
+
+class Restaurant
+{
+public:
+    Restaurant(GroceryStore& groceryStore) : groceryStore_(groceryStore) {}
+
+    std::int32_t AlterPrice(std::int32_t priceChange)
+    {
+        price_ += priceChange;
+        return price_;
+    }
+
+    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
+    {
+        BusinessMediator* old = mediator_;
+        mediator_ = mediator;
+        return old;
+    }
+
+private:
+    GroceryStore& groceryStore_;
+    BusinessMediator* mediator_{ nullptr };
+    std::int32_t price_{ 1000 };
 };
 
 BusinessMediator::BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant)
@@ -138,11 +142,11 @@ void BusinessMediator::GroceryStockChanged(std::int32_t currentStock)
 {
     if (currentStock > 0)
     {
-        restaurant_.SetIsOpened(true);
+        restaurant_.SetBusinessMediator(true);
     }
     else
     {
-        restaurant_.SetIsOpened(false);
+        restaurant_.SetBusinessMediator(false);
     }
 }
 
@@ -151,73 +155,4 @@ void BusinessMediator::GroceryPriceChanged(std::int32_t oldPrice, std::int32_t n
     restaurant_.AlterPrice(newPrice - oldPrice);
 }
 
-void BusinessMediator::FoodIsCooked()
-{
-    groceryStore_.Sell();
-}
-
-void BuyFood(Restaurant& restaurant)
-{
-    auto price = restaurant.CookFood();
-    if (price >= 0)
-    {
-        std::cout << "[BuyFood] The price of food : " << price << std::endl;
-    }
-    else
-    {
-        std::cout << "[BuyFood] Restaurant was closed because groceries are lacking." << std::endl;
-    }
-}
-
-void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
-{
-    auto newCount = groceryStore.Supply(count);
-    auto oldCount = newCount - count;
-    std::cout << "Grocery Stock Changes : " << oldCount << " -> " << newCount << std::endl;
-}
-
-void ChangeGroceryPrice(GroceryStore& groceryStore, std::int32_t priceChange)
-{
-    auto newPrice = groceryStore.AlterPrice(priceChange);
-    auto oldPrice = newPrice - priceChange;
-    std::cout << "Grocery Price Changes : " << oldPrice << " -> " << newPrice << std::endl;
-}
-
-void ChangeEstateRentPrice(EstateOwner& estateOwner, std::int32_t newPrice)
-{
-    auto oldPrice = estateOwner.SetEstateRentPrice(newPrice);
-    std::cout << "EstateRentPrice Changes : " << oldPrice << " -> " << newPrice << std::endl;
-}
-
-int main()
-{
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    SupplyGrocery(groceryStore, 2);
-    groceryStore.Sell();
-    BuyFood(restaurant);
-    BuyFood(restaurant);
-    std::cout << std::endl;
-
-    SupplyGrocery(groceryStore, 3);
-    ChangeEstateRentPrice(estateOwner, 1000);
-    BuyFood(restaurant);
-    ChangeEstateRentPrice(estateOwner, 10000);
-    BuyFood(restaurant);
-    ChangeEstateRentPrice(estateOwner, 100000);
-    BuyFood(restaurant);
-    std::cout << std::endl;
-
-    SupplyGrocery(groceryStore, 3);
-    ChangeGroceryPrice(groceryStore, 100);
-    BuyFood(restaurant);
-    ChangeEstateRentPrice(estateOwner, 10000);
-    BuyFood(restaurant);
-    ChangeGroceryPrice(groceryStore, -100);
-    BuyFood(restaurant);
-    BuyFood(restaurant);
-}
+void BusinessMediator::Food
