@@ -1,4 +1,4 @@
-#include <business.h>
+#include "business.h"
 
 int main()
 {
@@ -18,17 +18,6 @@ int main()
     ChangeEstateRentPrice(estateOwner, 1000);
     BuyFood(restaurant);
     ChangeEstateRentPrice(estateOwner, 10000);
-    BuyFood(restaurant);
-    ChangeEstateRentPrice(estateOwner, 100000);
-    BuyFood(restaurant);
-    std::cout << std::endl;
 
-    SupplyGrocery(groceryStore, 3);
-    ChangeGroceryPrice(groceryStore, 100);
-    BuyFood(restaurant);
-    ChangeEstateRentPrice(estateOwner, 10000);
-    BuyFood(restaurant);
-    ChangeGroceryPrice(groceryStore, -100);
-    BuyFood(restaurant);
-    BuyFood(restaurant);
+    return 0;
 }
