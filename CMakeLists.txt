@@ -6,6 +6,18 @@ project(BusinessProject)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Подключите FetchContent для автоматической загрузки GoogleTest
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1  # Используйте последнюю стабильную версию
+)
+
+# Загрузите GoogleTest
+FetchContent_MakeAvailable(googletest)
+
 # Добавьте библиотечные цели для ваших классов
 add_library(Restaurant src/Restaurant.cpp)
 add_library(BusinessMediator src/BusinessMediator.cpp)
@@ -17,9 +29,6 @@ target_include_directories(Restaurant PUBLIC include)
 target_include_directories(BusinessMediator PUBLIC include)
 target_include_directories(EstateOwner PUBLIC include)
 target_include_directories(GroceryStore PUBLIC include)
-
-# Подключите GoogleTest
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest EXCLUDE_FROM_ALL)
 
 # Создайте исполняемый файл для тестов
 add_executable(tests src/tests.cpp)
