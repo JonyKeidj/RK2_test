@@ -13,8 +13,8 @@ TEST(BusinessMediatorTest, EstateRentPriceChangedTest) {
 
     // После изменения цены на 20000, ожидается изменение цены продуктов в продуктовом магазине и ресторане
     mediator.EstateRentPriceChanged(10000, 20000);
-    EXPECT_EQ(groceryStore.AlterPrice(), 502); // (20000 - 10000) / 10000 = 1 => изменение цены на 1
-    EXPECT_EQ(restaurant.AlterPrice(), 510);   // (20000 - 10000) / 1000 = 10 => изменение цены на 10
+    EXPECT_EQ(groceryStore.AlterPrice(20000), 502); // (20000 - 10000) / 10000 = 1 => изменение цены на 1
+    EXPECT_EQ(restaurant.AlterPrice(20000), 510);   // (20000 - 10000) / 1000 = 10 => изменение цены на 10
 }
 
 // Тест для проверки изменения запасов продуктов в продуктовом магазине
@@ -48,9 +48,9 @@ TEST(BusinessMediatorTest, GroceryPriceChangedTest) {
     BusinessMediator mediator(estateOwner, groceryStore, restaurant);
 
     // Изначально цена продуктов равна 500
-    EXPECT_EQ(groceryStore.AlterPrice(), 500);
+    EXPECT_EQ(groceryStore.AlterPrice(500), 500);
 
     // После изменения цены на 600, ожидается изменение цены в ресторане
     mediator.GroceryPriceChanged(500, 600);
-    EXPECT_EQ(restaurant.AlterPrice(), 600); // изменение на 100
+    EXPECT_EQ(restaurant.AlterPrice(600), 600); // изменение на 100
 }
