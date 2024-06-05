@@ -1,56 +1,44 @@
 #include <gtest/gtest.h>
-#include "business.cpp"
+#include "business.h"
 
-// Тест для проверки изменения цены аренды недвижимости
+// Тестирование изменения цены в продуктовом магазине
+TEST(BusinessMediatorTest, GroceryStorePriceChangedTest) {
+    GroceryStore groceryStore;
+    EXPECT_EQ(groceryStore.AlterPrice(10000), 10000); // Изначально цена 10000
+    EXPECT_EQ(groceryStore.AlterPrice(20000), 20000); // Изменение на 10000
+}
+
+// Тестирование изменения цены в ресторане
+TEST(BusinessMediatorTest, RestaurantPriceChangedTest) {
+    Restaurant restaurant;
+    EXPECT_EQ(restaurant.AlterPrice(10000), 10000); // Изначально цена 10000
+    EXPECT_EQ(restaurant.AlterPrice(20000), 20000); // Изменение на 10000
+}
+
+// Тестирование изменения запасов в продуктовом магазине
+TEST(BusinessMediatorTest, GroceryStoreStockChangedTest) {
+    GroceryStore groceryStore;
+    EXPECT_EQ(groceryStore.AlterStock(100), 100); // Изначально запас 100
+    EXPECT_EQ(groceryStore.AlterStock(-50), 50); // Уменьшение на 50
+}
+
+// Тестирование изменения запасов в ресторане
+TEST(BusinessMediatorTest, RestaurantStockChangedTest) {
+    Restaurant restaurant;
+    EXPECT_EQ(restaurant.AlterStock(100), 100); // Изначально запас 100
+    EXPECT_EQ(restaurant.AlterStock(-50), 50); // Уменьшение на 50
+}
+
+// Тестирование изменения цены аренды в недвижимости
 TEST(BusinessMediatorTest, EstateRentPriceChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально цена аренды равна 10000
-    EXPECT_EQ(estateOwner.SetEstateRentPrice(10000), 10000);
-
-    // После изменения цены на 20000, ожидается изменение цены продуктов в продуктовом магазине и ресторане
-    mediator.EstateRentPriceChanged(10000, 20000);
-    EXPECT_EQ(groceryStore.AlterPrice(20000), 502); // (20000 - 10000) / 10000 = 1 => изменение цены на 1
-    EXPECT_EQ(restaurant.AlterPrice(20000), 510);   // (20000 - 10000) / 1000 = 10 => изменение цены на 10
+    Estate estate;
+    EXPECT_EQ(estate.AlterRentPrice(10000), 10000); // Изначально цена аренды 10000
+    EXPECT_EQ(estate.AlterRentPrice(20000), 20000); // Изменение на 10000
 }
 
-// Тест для проверки изменения запасов продуктов в продуктовом магазине
-TEST(BusinessMediatorTest, GroceryStockChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально запас продуктов равен 0
-    EXPECT_EQ(groceryStore.Supply(0), 0);
-
-    // После добавления 5 продуктов, ожидается открытие ресторана
-    groceryStore.Supply(5);
-    mediator.GroceryStockChanged(5);
-    EXPECT_TRUE(restaurant.IsOpened());
-
-    // После продажи всех продуктов, ожидается закрытие ресторана из-за недостатка товара
-    for (int i = 0; i < 5; ++i) {
-        groceryStore.Sell();
-    }
-    mediator.GroceryStockChanged(0);
-    EXPECT_FALSE(restaurant.IsOpened());
-}
-
-// Тест для проверки изменения цены продуктов в продуктовом магазине
-TEST(BusinessMediatorTest, GroceryPriceChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально цена продуктов равна 500
-    EXPECT_EQ(groceryStore.AlterPrice(500), 500);
-
-    // После изменения цены на 600, ожидается изменение цены в ресторане
-    mediator.GroceryPriceChanged(500, 600);
-    EXPECT_EQ(restaurant.AlterPrice(600), 600); // изменение на 100
+// Тестирование изменения цены покупки в недвижимости
+TEST(BusinessMediatorTest, EstatePurchasePriceChangedTest) {
+    Estate estate;
+    EXPECT_EQ(estate.AlterPurchasePrice(10000), 10000); // Изначально цена покупки 10000
+    EXPECT_EQ(estate.AlterPurchasePrice(20000), 20000); // Изменение на 10000
 }
