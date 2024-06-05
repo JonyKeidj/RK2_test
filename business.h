@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -25,20 +27,9 @@ private:
 class EstateOwner
 {
 public:
-    std::int32_t SetEstateRentPrice(std::int32_t price)
-    {
-        auto oldPrice = estateRentPrice_;
-        estateRentPrice_ = price;
-        if (mediator_) mediator_->EstateRentPriceChanged(oldPrice, price);
-        return oldPrice;
-    }
+    std::int32_t SetEstateRentPrice(std::int32_t price);
     
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
-    {
-        BusinessMediator* old = mediator_;
-        mediator_ = mediator;
-        return old;
-    }
+    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
 
 private:
     BusinessMediator* mediator_{ nullptr };
@@ -48,111 +39,31 @@ private:
 class GroceryStore
 {
 public:
-    std::int32_t Supply(std::uint16_t count)
-    {
-        stock_ += count;
-        if (mediator_) mediator_->GroceryStockChanged(stock_);
-        return stock_;
-    }
+    GroceryStore();
 
-    std::int32_t Sell()
-    {
-        if (stock_ <= 0)
-        {
-            throw std::logic_error("Not in stock.");
-        }
+    std::int32_t Supply(std::uint16_t count);
+    std::int32_t Sell();
+    std::int32_t AlterPrice(std::int32_t priceChange);
 
-        --stock_;
-        if (mediator_) mediator_->FoodIsCooked();
-        return price_;
-    }
-
-    std::int32_t AlterPrice(std::int32_t priceChange)
-    {
-        price_ += priceChange;
-        return price_;
-    }
-
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
-    {
-        BusinessMediator* old = mediator_;
-        mediator_ = mediator;
-        return old;
-    }
+    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
 
 private:
-    GroceryStore& groceryStore_;
     BusinessMediator* mediator_{ nullptr };
     bool isOpened_{ true };
-    std::int32_t price_{ 500 };
     std::int32_t stock_{ 0 };
-
-    std::int32_t CookFood()
-    {
-        if (isOpened_)
-        {
-            return price_;
-        }
-        else
-        {
-            return -1;
-        }
-    }
+    std::int32_t price_{ 500 };
 };
 
 class Restaurant
 {
 public:
-    Restaurant(GroceryStore& groceryStore) : groceryStore_(groceryStore) {}
+    Restaurant(GroceryStore& groceryStore);
 
-    std::int32_t AlterPrice(std::int32_t priceChange)
-    {
-        price_ += priceChange;
-        return price_;
-    }
-
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
-    {
-        BusinessMediator* old = mediator_;
-        mediator_ = mediator;
-        return old;
-    }
+    std::int32_t CookFood();
+    std::int32_t AlterPrice(std::int32_t priceChange);
+    void SetBusinessMediator(BusinessMediator* mediator);
 
 private:
-    GroceryStore& groceryStore_;
     BusinessMediator* mediator_{ nullptr };
-    std::int32_t price_{ 1000 };
+    GroceryStore& groceryStore_;
 };
-
-BusinessMediator::BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant)
-    : estateOwner_(estateOwner), groceryStore_(groceryStore), restaurant_(restaurant)
-{
-    estateOwner_.SetBusinessMediator(this);
-    groceryStore_.SetBusinessMediator(this);
-    restaurant_.SetBusinessMediator(this);
-}
-
-void BusinessMediator::EstateRentPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
-{
-    groceryStore_.AlterPrice((newPrice - oldPrice) / 10000);
-    restaurant_.AlterPrice((newPrice - oldPrice) / 1000);
-}
-
-void BusinessMediator::GroceryStockChanged(std::int32_t currentStock)
-{
-    if (currentStock > 0)
-    {
-        restaurant_.SetBusinessMediator(true);
-    }
-    else
-    {
-        restaurant_.SetBusinessMediator(false);
-    }
-}
-
-void BusinessMediator::GroceryPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
-{
-    restaurant_.AlterPrice(newPrice - oldPrice);
-}
-
-void BusinessMediator::Food
