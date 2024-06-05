@@ -1,74 +1,38 @@
-#pragma once
+#ifndef BUSINESS_H
+#define BUSINESS_H
 
-#include <iostream>
-#include <stdexcept>
 #include <string>
 
-class EstateOwner;
-class GroceryStore;
-class Restaurant;
-
-class BusinessMediator
-{
+class GroceryStore {
 public:
-    BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant);
-
-    void EstateRentPriceChanged(std::int32_t oldPrice, std::int32_t newPrice);
-    void GroceryStockChanged(std::int32_t currentStock);
-    void GroceryPriceChanged(std::int32_t oldPrice, std::int32_t newPrice);
-    void FoodIsCooked();
+    GroceryStore(); // Конструктор по умолчанию
+    explicit GroceryStore(int stock); // Конструктор с параметром
+    int AlterStock(int change); // Метод изменения запасов товара
 
 private:
-    EstateOwner& estateOwner_;
-    GroceryStore& groceryStore_;
-    Restaurant& restaurant_;
+    int stock_;
 };
 
-class EstateOwner
-{
+class Restaurant {
 public:
-    std::int32_t SetEstateRentPrice(std::int32_t price);
-    
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
+    Restaurant(); // Конструктор по умолчанию
+    explicit Restaurant(int stock); // Конструктор с параметром
+    int AlterStock(int change); // Метод изменения запасов товара
 
 private:
-    BusinessMediator* mediator_{ nullptr };
-    std::int32_t estateRentPrice_{ 10000 };
+    int stock_;
 };
 
-class GroceryStore
-{
+class Estate {
 public:
-    GroceryStore();
-
-    std::int32_t Supply(std::uint16_t count);
-    std::int32_t Sell();
-    std::int32_t AlterPrice(std::int32_t priceChange);
-
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
+    Estate(); // Конструктор по умолчанию
+    explicit Estate(int rentPrice, int purchasePrice); // Конструктор с параметрами
+    int AlterRentPrice(int change); // Метод изменения цены аренды
+    int AlterPurchasePrice(int change); // Метод изменения цены покупки
 
 private:
-    BusinessMediator* mediator_{ nullptr };
-    bool isOpened_{ true };
-    std::int32_t stock_{ 0 };
-    std::int32_t price_{ 500 };
+    int rentPrice_;
+    int purchasePrice_;
 };
 
-class Restaurant
-{
-public:
-    Restaurant(GroceryStore& groceryStore);
-
-    std::int32_t CookFood();
-    std::int32_t AlterPrice(std::int32_t priceChange);
-    void SetBusinessMediator(BusinessMediator* mediator);
-
-private:
-    BusinessMediator* mediator_{ nullptr };
-    GroceryStore& groceryStore_;
-};
-
-// Объявления функций, которые будут использованы в main.cpp
-void SupplyGrocery(GroceryStore& store, std::uint16_t count);
-void BuyFood(Restaurant& restaurant);
-void ChangeEstateRentPrice(EstateOwner& owner, std::int32_t priceChange);
+#endif // BUSINESS_H
