@@ -67,3 +67,8 @@ private:
     BusinessMediator* mediator_{ nullptr };
     GroceryStore& groceryStore_;
 };
+
+// Объявления функций, которые будут использованы в main.cpp
+void SupplyGrocery(GroceryStore& store, std::uint16_t count);
+void BuyFood(Restaurant& restaurant);
+void ChangeEstateRentPrice(EstateOwner& owner, std::int32_t priceChange);
