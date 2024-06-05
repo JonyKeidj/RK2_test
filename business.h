@@ -1,6 +1,3 @@
-#ifndef BUSINESS_H
-#define BUSINESS_H
-
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -28,8 +25,20 @@ private:
 class EstateOwner
 {
 public:
-    std::int32_t SetEstateRentPrice(std::int32_t price);
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
+    std::int32_t SetEstateRentPrice(std::int32_t price)
+    {
+        auto oldPrice = estateRentPrice_;
+        estateRentPrice_ = price;
+        if (mediator_) mediator_->EstateRentPriceChanged(oldPrice, price);
+        return oldPrice;
+    }
+    
+    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
+    {
+        BusinessMediator* old = mediator_;
+        mediator_ = mediator;
+        return old;
+    }
 
 private:
     BusinessMediator* mediator_{ nullptr };
@@ -39,28 +48,70 @@ private:
 class GroceryStore
 {
 public:
-    std::int32_t Supply(std::uint16_t count);
-    std::int32_t Sell();
-    std::int32_t GetPrice() const;
-    std::int32_t AlterPrice(std::int32_t priceChange);
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
+    std::int32_t Supply(std::uint16_t count)
+    {
+        stock_ += count;
+        if (mediator_) mediator_->GroceryStockChanged(stock_);
+        return stock_;
+    }
 
-private:
-    BusinessMediator* mediator_{ nullptr };
-    std::int32_t stock_{ 0 };
-    std::int32_t price_{ 500 };
-};
+    std::int32_t Sell()
+    {
+        if (stock_ <= 0)
+        {
+            throw std::logic_error("Not in stock.");
+        }
 
-class Restaurant
-{
-public:
-    Restaurant(GroceryStore& groceryStore);
-    std::int32_t CookFood();
-    bool IsOpened() const;
-    void SetIsOpened(bool isOpened);
-    std::int32_t GetPrice() const;
-    std::int32_t AlterPrice(std::int32_t priceChange);
-    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator);
+        --stock_;
+        if (mediator_) mediator_->GroceryStockChanged(stock_);
+        return price_;
+    }
+
+    std::int32_t GetPrice() const
+    {
+        return price_;
+    }
+
+    std::int32_t AlterPrice(std::int32_t priceChange)
+    std::int32_t CookFood()
+    {
+        if (isOpened_)
+        {
+            return price_;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    bool IsOpened() const
+    {
+        return isOpened_;
+    }
+
+    void SetIsOpened(bool isOpened)
+    {
+        isOpened_ = isOpened;
+    }
+
+    std::int32_t GetPrice() const
+    {
+        return price_;
+    }
+
+    std::int32_t AlterPrice(std::int32_t priceChange)
+    {
+        price_ += priceChange;
+        return price_;
+    }
+
+    BusinessMediator* SetBusinessMediator(BusinessMediator* mediator)
+    {
+        BusinessMediator* old = mediator_;
+        mediator_ = mediator;
+        return old;
+    }
 
 private:
     GroceryStore& groceryStore_;
@@ -69,9 +120,71 @@ private:
     std::int32_t price_{ 500 };
 };
 
-void BuyFood(Restaurant& restaurant);
-void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count);
-void ChangeGroceryPrice(GroceryStore& groceryStore, std::int32_t priceChange);
-void ChangeEstateRentPrice(EstateOwner& estateOwner, std::int32_t newPrice);
+BusinessMediator::BusinessMediator(EstateOwner& estateOwner, GroceryStore& groceryStore, Restaurant& restaurant)
+    : estateOwner_(estateOwner), groceryStore_(groceryStore), restaurant_(restaurant)
+{
+    estateOwner_.SetBusinessMediator(this);
+    groceryStore_.SetBusinessMediator(this);
+    restaurant_.SetBusinessMediator(this);
+}
 
-#endif // BUSINESS_H
+void BusinessMediator::EstateRentPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
+{
+    groceryStore_.AlterPrice((newPrice - oldPrice) / 10000);
+    restaurant_.AlterPrice((newPrice - oldPrice) / 1000);
+}
+
+void BusinessMediator::GroceryStockChanged(std::int32_t currentStock)
+{
+    if (currentStock > 0)
+    {
+        restaurant_.SetIsOpened(true);
+    }
+    else
+    {
+        restaurant_.SetIsOpened(false);
+    }
+}
+
+void BusinessMediator::GroceryPriceChanged(std::int32_t oldPrice, std::int32_t newPrice)
+{
+    restaurant_.AlterPrice(newPrice - oldPrice);
+}
+
+void BusinessMediator::FoodIsCooked()
+{
+    groceryStore_.Sell();
+}
+
+void BuyFood(Restaurant& restaurant)
+{
+    auto price = restaurant.CookFood();
+    if (price >= 0)
+    {
+        std::cout << "[BuyFood] The price of food : " << price << std::endl;
+    }
+    else
+    {
+        std::cout << "[BuyFood] Restaurant was closed because groceries are lacking." << std::endl;
+    }
+}
+
+void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
+{
+    auto newCount = groceryStore.Supply(count);
+    auto oldCount = newCount - count;
+    std::cout << "Grocery Stock Changes : " << oldCount << " -> " << newCount << std::endl;
+}
+
+void ChangeGroceryPrice(GroceryStore& groceryStore, std::int32_t priceChange)
+{
+    auto newPrice = groceryStore.AlterPrice(priceChange);
+    auto oldPrice = newPrice - priceChange;
+    std::cout << "Grocery Price Changes : " << oldPrice << " -> " << newPrice << std::endl;
+}
+
+void ChangeEstateRentPrice(EstateOwner& estateOwner, std::int32_t newPrice)
+{
+    auto oldPrice = estateOwner.SetEstateRentPrice(newPrice);
+    std::cout << "EstateRentPrice Changes : " << oldPrice << " -> " << newPrice << std::endl;
+}
