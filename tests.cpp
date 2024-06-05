@@ -1,56 +1,25 @@
-#include <gtest/gtest.h>
-#include "business.h"
+#include "gtest/gtest.h"
+#include "business.h" // Подключаем исходный файл, чтобы иметь доступ к классам
 
-// Тест для проверки изменения цены аренды недвижимости
-TEST(BusinessMediatorTest, EstateRentPriceChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально цена аренды равна 10000
-    EXPECT_EQ(estateOwner.SetEstateRentPrice(10000), 10000);
-
-    // После изменения цены на 20000, ожидается изменение цены продуктов в продуктовом магазине и ресторане
-    mediator.EstateRentPriceChanged(10000, 20000);
-    EXPECT_EQ(groceryStore.GetPrice(), 502); // (20000 - 10000) / 10000 = 1 => изменение цены на 1
-    EXPECT_EQ(restaurant.GetPrice(), 510);   // (20000 - 10000) / 1000 = 10 => изменение цены на 10
+// Тесты для класса Theme
+TEST(ThemeTest, WhiteThemeTest) {
+    WhiteTheme whiteTheme;
+    EXPECT_EQ(whiteTheme.Name(), "Red Theme");
+    EXPECT_EQ(whiteTheme.WallColor().R, 255);
+    EXPECT_EQ(whiteTheme.WallColor().G, 255);
+    EXPECT_EQ(whiteTheme.WallColor().B, 255);
 }
 
-// Тест для проверки изменения запасов продуктов в продуктовом магазине
-TEST(BusinessMediatorTest, GroceryStockChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально запас продуктов равен 0
-    EXPECT_EQ(groceryStore.Supply(0), 0);
-
-    // После добавления 5 продуктов, ожидается открытие ресторана
-    groceryStore.Supply(5);
-    mediator.GroceryStockChanged(5);
-    EXPECT_TRUE(restaurant.IsOpened());
-
-    // После продажи всех продуктов, ожидается закрытие ресторана из-за недостатка товара
-    for (int i = 0; i < 5; ++i) {
-        groceryStore.Sell();
-    }
-    mediator.GroceryStockChanged(0);
-    EXPECT_FALSE(restaurant.IsOpened());
+TEST(ThemeTest, DarkThemeTest) {
+    DarkTheme darkTheme;
+    EXPECT_EQ(darkTheme.Name(), "Dark Theme");
+    EXPECT_EQ(darkTheme.WallColor().R, 0);
+    EXPECT_EQ(darkTheme.WallColor().G, 0);
+    EXPECT_EQ(darkTheme.WallColor().B, 0);
 }
 
-// Тест для проверки изменения цены продуктов в продуктовом магазине
-TEST(BusinessMediatorTest, GroceryPriceChangedTest) {
-    EstateOwner estateOwner;
-    GroceryStore groceryStore;
-    Restaurant restaurant(groceryStore);
-    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
-
-    // Изначально цена продуктов равна 500
-    EXPECT_EQ(groceryStore.GetPrice(), 500);
-
-    // После изменения цены на 600, ожидается изменение цены в ресторане
-    mediator.GroceryPriceChanged(500, 600);
-    EXPECT_EQ(restaurant.GetPrice(), 600); // изменение на 100
+// Тесты для класса House
+TEST(HouseTest, OneRoomTest) {
+    OneRoom oneRoom(std::make_shared<WhiteTheme>());
+    EXPECT_EQ(oneRoom.Name(), "One Room");
 }
