@@ -1,21 +1,34 @@
-#include "business.h"
+#include <business.h>
 
 int main()
 {
-    OneRoom oneRoom(std::make_shared<DarkTheme>());
-    oneRoom.ShowDescription();
-    oneRoom.ChangeTheme(std::make_shared<WhiteTheme>());
-    oneRoom.ShowDescription();
+    EstateOwner estateOwner;
+    GroceryStore groceryStore;
+    Restaurant restaurant(groceryStore);
 
-    Apartment apartment(std::make_shared<WhiteTheme>());
-    apartment.ShowDescription();
+    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
 
-    auto customTheme = std::make_shared<CustomTheme>("My Custom Theme", 
-        Color(12, 34, 56), Color(78, 90, 12), Color(34, 56, 78));
+    SupplyGrocery(groceryStore, 2);
+    groceryStore.Sell();
+    BuyFood(restaurant);
+    BuyFood(restaurant);
+    std::cout << std::endl;
 
-    Castle castle(customTheme);
-    castle.ShowDescription();
-    
-    apartment.ChangeTheme(customTheme);
-    apartment.ShowDescription();
+    SupplyGrocery(groceryStore, 3);
+    ChangeEstateRentPrice(estateOwner, 1000);
+    BuyFood(restaurant);
+    ChangeEstateRentPrice(estateOwner, 10000);
+    BuyFood(restaurant);
+    ChangeEstateRentPrice(estateOwner, 100000);
+    BuyFood(restaurant);
+    std::cout << std::endl;
+
+    SupplyGrocery(groceryStore, 3);
+    ChangeGroceryPrice(groceryStore, 100);
+    BuyFood(restaurant);
+    ChangeEstateRentPrice(estateOwner, 10000);
+    BuyFood(restaurant);
+    ChangeGroceryPrice(groceryStore, -100);
+    BuyFood(restaurant);
+    BuyFood(restaurant);
 }
