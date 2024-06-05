@@ -12,7 +12,7 @@ TEST(BusinessMediatorTest, EstateRentPriceChangedTest) {
     EXPECT_EQ(estateOwner.SetEstateRentPrice(10000), 10000);
 
     // После изменения цены на 20000, ожидается изменение цены продуктов в продуктовом магазине и ресторане
-    mediator.EstateRentPriceChanged(10000, 20000);
+    mediator.EstateRentPriceChanged(20000);
     EXPECT_EQ(groceryStore.GetPrice(), 502); // (20000 - 10000) / 10000 = 1 => изменение цены на 1
     EXPECT_EQ(restaurant.GetPrice(), 510);   // (20000 - 10000) / 1000 = 10 => изменение цены на 10
 }
@@ -33,9 +33,7 @@ TEST(BusinessMediatorTest, GroceryStockChangedTest) {
     EXPECT_TRUE(restaurant.IsOpened());
 
     // После продажи всех продуктов, ожидается закрытие ресторана из-за недостатка товара
-    for (int i = 0; i < 5; ++i) {
-        groceryStore.Sell();
-    }
+    groceryStore.Sell(); // Проводим продажу, чтобы запас стал нулевым
     mediator.GroceryStockChanged(0);
     EXPECT_FALSE(restaurant.IsOpened());
 }
@@ -51,6 +49,6 @@ TEST(BusinessMediatorTest, GroceryPriceChangedTest) {
     EXPECT_EQ(groceryStore.GetPrice(), 500);
 
     // После изменения цены на 600, ожидается изменение цены в ресторане
-    mediator.GroceryPriceChanged(500, 600);
+    mediator.GroceryPriceChanged(600);
     EXPECT_EQ(restaurant.GetPrice(), 600); // изменение на 100
 }
