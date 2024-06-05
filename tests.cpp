@@ -10,7 +10,8 @@ TEST(BusinessMediatorTest, GroceryStorePriceChangedTest) {
 
 // Тестирование изменения цены в ресторане
 TEST(BusinessMediatorTest, RestaurantPriceChangedTest) {
-    Restaurant restaurant;
+    GroceryStore groceryStore; // Создаем продуктовый магазин
+    Restaurant restaurant(groceryStore); // Передаем продуктовый магазин ресторану
     EXPECT_EQ(restaurant.AlterPrice(10000), 10000); // Изначально цена 10000
     EXPECT_EQ(restaurant.AlterPrice(20000), 20000); // Изменение на 10000
 }
@@ -24,7 +25,8 @@ TEST(BusinessMediatorTest, GroceryStoreStockChangedTest) {
 
 // Тестирование изменения запасов в ресторане
 TEST(BusinessMediatorTest, RestaurantStockChangedTest) {
-    Restaurant restaurant;
+    GroceryStore groceryStore; // Создаем продуктовый магазин
+    Restaurant restaurant(groceryStore); // Передаем продуктовый магазин ресторану
     EXPECT_EQ(restaurant.AlterStock(100), 100); // Изначально запас 100
     EXPECT_EQ(restaurant.AlterStock(-50), 50); // Уменьшение на 50
 }
