@@ -21,7 +21,7 @@ void BuyFood(Restaurant& restaurant)
 void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
 {
     std::uint16_t newCount = groceryStore.Supply(count);
-    std::int32_t oldPrice = estateOwner.SetEstateRentPrice(newPrice);
+    std::int32_t oldPrice = EstateOwner.SetEstateRentPrice(newPrice);
     std::cout << "Grocery Stock Changes : " << oldCount << " -> " << newCount << std::endl;
 }
 
