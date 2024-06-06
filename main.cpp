@@ -1,5 +1,5 @@
 #include <iostream>
-#include "BusinessSystem.h"
+#include "BusinessSystem.cpp"
 
 void BuyFood(Restaurant& restaurant)
 {
@@ -16,14 +16,12 @@ void BuyFood(Restaurant& restaurant)
 
 void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
 {
-    auto newCount = groceryStore.Supply(count);
-    std::cout << "Grocery Stock Changes : " << newCount - count << " -> " << newCount << std::endl;
+    std::cout << "Grocery Stock Changes : " << groceryStore.Supply(count) << " -> " << groceryStore.GetStock() << std::endl;
 }
 
 void ChangeGroceryPrice(GroceryStore& groceryStore, std::int32_t priceChange)
 {
-    auto newPrice = groceryStore.AlterPrice(priceChange);
-    std::cout << "Grocery Price Changes : " << newPrice - priceChange << " -> " << newPrice << std::endl;
+    std::cout << "Grocery Price Changes : " << groceryStore.AlterPrice(priceChange) - priceChange << " -> " << groceryStore.GetPrice() << std::endl;
 }
 
 void ChangeEstateRentPrice(EstateOwner& estateOwner, std::int32_t newPrice)
