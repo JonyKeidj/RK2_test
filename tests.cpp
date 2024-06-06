@@ -1,30 +1,39 @@
-#include "business.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include "BusinessSystem.cpp"
 
-TEST(BusinessMediatorTest, GroceryStoreStockChangedTest) {
-    // Создаем объект магазина с начальным запасом товара
-    GroceryStore groceryStore(100);
-    EXPECT_EQ(groceryStore.AlterStock(100), 100); // Изначально запас 100
-    EXPECT_EQ(groceryStore.AlterStock(-50), 50); // Уменьшение на 50
+TEST(BusinessTest, GroceryPriceChangeTest) {
+    EstateOwner estateOwner;
+    GroceryStore groceryStore;
+    Restaurant restaurant;
+    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
+
+    groceryStore.AlterPrice(100); // Set initial price
+    // Change price by +50
+    EXPECT_EQ(groceryStore.AlterPrice(50), 150);
 }
 
-TEST(BusinessMediatorTest, RestaurantStockChangedTest) {
-    // Создаем объект ресторана с начальным запасом товара
-    Restaurant restaurant(100);
-    EXPECT_EQ(restaurant.AlterStock(100), 100); // Изначально запас 100
-    EXPECT_EQ(restaurant.AlterStock(-50), 50); // Уменьшение на 50
+TEST(BusinessTest, GroceryStockChangeTest) {
+    EstateOwner estateOwner;
+    GroceryStore groceryStore;
+    Restaurant restaurant;
+    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
+
+    groceryStore.Supply(10);
+    EXPECT_NO_THROW(restaurant.CookFood()); // Restaurant should be open
+
+    groceryStore.Supply(-10);
+    EXPECT_EQ(restaurant.CookFood(), 0); // Restaurant should be closed
 }
 
-TEST(BusinessMediatorTest, EstateRentPriceChangedTest) {
-    // Создаем объект недвижимости с начальными ценами аренды и покупки
-    Estate estate(10000, 20000);
-    EXPECT_EQ(estate.AlterRentPrice(10000), 10000); // Изначально цена аренды 10000
-    EXPECT_EQ(estate.AlterRentPrice(20000), 20000); // Изменение на 10000
-}
+TEST(BusinessTest, FoodIsCookedTest) {
+    EstateOwner estateOwner;
+    GroceryStore groceryStore;
+    Restaurant restaurant;
+    BusinessMediator mediator(estateOwner, groceryStore, restaurant);
 
-TEST(BusinessMediatorTest, EstatePurchasePriceChangedTest) {
-    // Создаем объект недвижимости с начальными ценами аренды и покупки
-    Estate estate(10000, 20000);
-    EXPECT_EQ(estate.AlterPurchasePrice(10000), 10000); // Изначально цена покупки 10000
-    EXPECT_EQ(estate.AlterPurchasePrice(20000), 20000); // Изменение на 10000
+    groceryStore.Supply(1);
+    EXPECT_NO_THROW(restaurant.CookFood()); // Should not throw, as grocery is available
+
+    groceryStore.Sell(); // Sell one item to make stock 0
+    EXPECT_THROW(groceryStore.Sell(), std::logic_error); // Out of stock
 }
