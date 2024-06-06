@@ -1,5 +1,5 @@
 #include <iostream>
-#include "BusinessSystem.cpp"
+#include "BusinessSystem.h"
 
 void BuyFood(Restaurant& restaurant)
 {
