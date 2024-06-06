@@ -19,7 +19,7 @@ void BuyFood(Restaurant& restaurant)
 
 void SupplyGrocery(GroceryStore& groceryStore, std::uint16_t count)
 {
-    void newCount = groceryStore.Supply(count);
+    auto newCount = groceryStore.Supply(count);
     auto oldCount = newCount - count;
     std::cout << "Grocery Stock Changes : " << oldCount << " -> " << newCount << std::endl;
 }
